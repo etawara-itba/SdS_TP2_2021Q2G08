@@ -119,4 +119,41 @@ public class GameOfLife2D {
         }
     }
 
+    public boolean borderWithAliveParticle(){
+        for(int i = 0; i < this.getSize(); i++){
+            for(int j = 0; j < this.getSize(); j++){
+                if(i == 0 || j == 0 || i == this.getSize() -1 || j == this.getSize() - 1){
+                    if(this.grid[i][j]){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public int aliveParticles(){
+        int aliveParticles = 0;
+        for(int i = 0; i < this.getSize(); i++){
+            for(int j = 0; j < this.getSize(); j++){
+                if(this.grid[i][j]){
+                    aliveParticles++;
+                }
+            }
+        }
+        return aliveParticles;
+    }
+
+    public void printBoard() {
+        for(int j = this.getSize() - 1; j >= 0; j--) {
+            for(int i = 0; i < this.getSize(); i++) {
+                if(this.grid[i][j])
+                    System.out.print("+");
+                else
+                    System.out.print("-");
+            }
+            System.out.println();
+        }
+    }
+
 }
