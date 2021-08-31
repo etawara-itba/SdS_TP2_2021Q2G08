@@ -19,4 +19,8 @@ public class Position {
         return this.z;
     }
 
+    public float distanceTo(Position p){
+        return Math.abs(this.x - p.getX()) + Math.abs(this.y - p.getY()) + Math.abs(this.z - p.getZ());
+    }
+
 }

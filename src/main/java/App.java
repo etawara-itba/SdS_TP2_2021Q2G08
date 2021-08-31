@@ -2,11 +2,14 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.FileReader;
+import java.io.*;
+import java.nio.file.FileSystems;
 import java.util.*;
 
 
 public class App {
+
+	private static final String OUTPUT_DIR = "output";
 
 	public static void main(String[] args) throws Exception {
 		Object obj = new JSONParser().parse(new FileReader("config.json"));
@@ -20,6 +23,8 @@ public class App {
 		int initialArea = (int) (long) jo.get("initialArea");
 		double particlesAlivePercentageRatio = (double) jo.get("particlesAlivePercentageRatio");
 		long maxIterations = (long) jo.get("iterations");
+
+		createDirectory(OUTPUT_DIR);
 
 		GameOfLife2D game = new GameOfLife2D(gridSize);
 		if(randomParticles){
@@ -42,14 +47,39 @@ public class App {
 			game.fillGrid(particleList);
 		}
 
-
+		String baseFilename = OUTPUT_DIR + "/dynamic_";
+		String currentFilename;
+		String fileSuffix = ".dump";
 		for(int iteration = 0; iteration < maxIterations && !game.borderWithAliveParticle() && game.aliveParticles() > 0; iteration++){
 			System.out.println("Iteration number: " + iteration);
-			game.printBoard();
+			// game.printBoard();
+
+			currentFilename = baseFilename + String.format("%05d", iteration) + fileSuffix;
+			try{
+				game.dumpToFile(currentFilename);
+			}catch (IOException e){
+				System.out.println("error writing to " + currentFilename);
+			}
+
 			game.nextRound(game);
 		}
 
 		// System.out.println(particleList);
 
+	}
+
+	private static File createDirectory(String directoryName) throws IOException {
+		File dir = new File(String.valueOf(FileSystems.getDefault().getPath("./" + directoryName)));
+		if (dir.exists()) {
+			for (File file: dir.listFiles()) {
+				if (!file.isDirectory())
+					file.delete();
+			}
+			return dir;
+		}
+		if (dir.mkdirs()) {
+			return dir;
+		}
+		throw new IOException("Failed to create directory '" + dir.getAbsolutePath() + "' for an unknown reason.");
 	}
 }
