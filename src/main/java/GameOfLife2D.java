@@ -53,14 +53,16 @@ public class GameOfLife2D {
 
     public void nextRound(GameOfLife2D game){
         this.timestep++;
+        boolean[][] newGrid = new boolean[this.size][this.size];
         for(int i = 0; i < game.getSize(); i++){
             for(int j = 0; j < game.getSize(); j++){
                 int neighborsAlive = getNeighborsAlive(i,j);
                 boolean oldState = this.grid[i][j];
                 boolean newState = shouldBeAlive(oldState, neighborsAlive);
-                setState(i,j,newState);
+                newGrid[i][j] = newState;
             }
         }
+        this.grid = newGrid;
     }
 
     public int getNeighborsAlive(int x, int y){

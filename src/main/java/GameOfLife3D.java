@@ -1,7 +1,7 @@
 import java.util.List;
 
 public class GameOfLife3D {
-    private final boolean[][][] space;
+    private boolean[][][] space;
     private final int size;
 
     public GameOfLife3D(int size) {
@@ -27,15 +27,19 @@ public class GameOfLife3D {
     }
 
     public void nextRound() {
+        boolean[][][] newSpace = new boolean[this.size][this.size][this.size];
+
         for (int x = 0; x < this.size; x++) {
             for (int y = 0; y < this.size; y++) {
                 for (int z = 0; z < this.size; z++) {
                     int aliveNeighbors = getAliveNeighbors(x, y, z);
                     boolean newState = getNewState(this.space[x][y][z], aliveNeighbors);
-                    this.space[x][y][z] = newState;
+                    newSpace[x][y][z] = newState;
                 }
             }
         }
+
+        this.space = newSpace;
     }
 
     private int getAliveNeighbors(int x, int y, int z) {
