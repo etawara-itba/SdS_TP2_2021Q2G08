@@ -23,7 +23,7 @@ public class App {
 
 		GameOfLife2D game = new GameOfLife2D(gridSize);
 		if(randomParticles){
-			ParticlesGenerator2D particles2DGenerator = new ParticlesGenerator2D(gridSize, initialArea, particlesAlivePercentageRatio);
+			ParticlesGenerator particles2DGenerator = new ParticlesGenerator(gridSize, initialArea, particlesAlivePercentageRatio);
 			List<Particle> particleListGenerated = particles2DGenerator.generator();
 			game.fillGrid(particleListGenerated);
 		} else{
