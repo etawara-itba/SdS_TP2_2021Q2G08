@@ -75,4 +75,8 @@ public class GameOfLife3D {
         }
         return  aliveParticles;
     }
+
+    private Position getCenter() {
+        return new Position(this.size/2, this.size/2, this.size/2);
+    }
 }
