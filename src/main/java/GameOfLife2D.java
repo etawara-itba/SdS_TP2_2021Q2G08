@@ -1,10 +1,16 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameOfLife2D {
     private boolean[][] grid;
     int size;
+    int timestep;
 
     public GameOfLife2D(int M) {
+        this.timestep = 0;
         this.size = M;
         this.grid = new boolean[M][M];
         for(int i = 0; i < M; i++) {
@@ -46,6 +52,7 @@ public class GameOfLife2D {
     }
 
     public void nextRound(GameOfLife2D game){
+        this.timestep++;
         for(int i = 0; i < game.getSize(); i++){
             for(int j = 0; j < game.getSize(); j++){
                 int neighborsAlive = getNeighborsAlive(i,j);
@@ -154,6 +161,66 @@ public class GameOfLife2D {
             }
             System.out.println();
         }
+    }
+
+    public void dumpToFile(String fileName) throws IOException {
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+        writer.write("");
+
+        List<Position> alivePositions = new ArrayList<>();
+        for(int j = this.getSize() - 1; j >= 0; j--) {
+            for(int i = 0; i < this.getSize(); i++) {
+                if(this.grid[i][j])
+                    alivePositions.add(new Position(i, j, 0));
+            }
+        }
+
+        writer.append("ITEM: TIMESTEP\n");
+        writer.append(this.timestep + "\n" );
+        writer.append("ITEM: NUMBER OF ATOMS\n");
+        writer.append(alivePositions.size() + "\n" );
+        writer.append("ITEM: BOX BOUNDS\n");
+        writer.append("0\t" + this.size + "\n" );
+        writer.append("0\t" + this.size + "\n" );
+        writer.append("0\t0\n" );
+        writer.append("ITEM: ATOMS id type xs ys zs rc gc bc\n");
+
+        String id, type, xs, ys, zs, rc, bc, gc;
+        ColorRGB colorRGB;
+        for(Position p : alivePositions){
+
+            colorRGB = getColor(p);
+
+            id = String.valueOf(p.getX() + this.size * p.getY());
+            type = "1";
+            xs = String.valueOf((float) p.getX() / this.size);
+            ys = String.valueOf((float) p.getY() / this.size);
+            zs = String.valueOf((float) p.getZ() / this.size);
+            rc = String.format("%.3f", colorRGB.getR());
+            gc = String.format("%.3f", colorRGB.getG());
+            bc = String.format("%.3f", colorRGB.getB());
+
+            writer.append(id + "\t" + type + "\t" + xs + "\t" + ys + "\t" + zs + "\t" + rc + "\t" + gc + "\t" + bc + "\n");
+        }
+
+        writer.close();
+    }
+
+    private ColorRGB getColor(Position position){
+        Position center  = getCenter();
+        float maxDistance = 1F * this.size;
+        float distance = position.distanceTo(center);
+
+        float r = 0.2F;
+        float g = (0F + distance/maxDistance);
+        float b = (0F + distance/maxDistance);
+
+        return new ColorRGB(r, g, b);
+    }
+
+    private Position getCenter(){
+        return new Position(this.size/2, this.size/2, 0);
     }
 
 }
