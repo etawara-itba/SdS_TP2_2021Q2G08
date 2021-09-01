@@ -1,11 +1,19 @@
 import java.util.List;
 
 public class GameOfLife3D {
+    public enum GameModes {
+        CLASSIC,
+        FAST,
+        SLOW,
+    }
+
     private boolean[][][] space;
     private final int size;
+    private final GameModes mode;
 
-    public GameOfLife3D(int size) {
+    public GameOfLife3D(int size, GameModes mode) {
         this.size = size;
+        this.mode = mode;
         this.space = new boolean[size][size][size];
     }
 
@@ -63,6 +71,13 @@ public class GameOfLife3D {
     }
 
     private boolean getNewState(boolean cellIsAlive, int aliveNeighbors) {
+        switch (this.mode) {
+            case FAST:
+                return cellIsAlive ? (aliveNeighbors == 1 || aliveNeighbors == 2) : (aliveNeighbors == 2);
+            case SLOW:
+                return cellIsAlive ? (aliveNeighbors >= 2 && aliveNeighbors <= 5) : (aliveNeighbors == 4);
+            default:
+        }
         return cellIsAlive ? (aliveNeighbors == 2 || aliveNeighbors == 3) : (aliveNeighbors == 3);
     }
 
