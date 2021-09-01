@@ -28,7 +28,7 @@ public class App {
 
 		createDirectory(OUTPUT_DIR, true);
 
-		GameOfLife2D game = new GameOfLife2D(gridSize);
+		GameOfLife2D game = new GameOfLife2D(gridSize, GameModes.valueOf(rule));
 		if(randomParticles){
 			ParticlesGenerator particles2DGenerator = new ParticlesGenerator(gridSize, initialArea, particlesAlivePercentageRatio);
 			List<Particle> particleListGenerated = particles2DGenerator.generator();

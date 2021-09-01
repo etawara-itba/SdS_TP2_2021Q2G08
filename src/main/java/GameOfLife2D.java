@@ -5,14 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameOfLife2D {
+
     private boolean[][] grid;
     int size;
     int timestep;
+    GameModes mode;
     List<Double> maxDistanceList;
 
-    public GameOfLife2D(int M) {
+    public GameOfLife2D(int M, GameModes mode) {
         this.timestep = 0;
         this.size = M;
+        this.mode = mode;
         this.grid = new boolean[M][M];
         for(int i = 0; i < M; i++) {
             for (int j = 0; j < M; j++) {
@@ -119,19 +122,53 @@ public class GameOfLife2D {
     }
 
     public boolean shouldBeAlive(boolean oldState, int neighborsAlive){
-        if(oldState){
-            if(neighborsAlive == 2 || neighborsAlive == 3){
-                return true;
-            } else{
-                return false;
-            }
-        } else{
-            if(neighborsAlive == 3){
-                return true;
-            } else{
-                return false;
-            }
+        switch (this.mode){
+            case CLASSIC:
+                if(oldState){
+                    if(neighborsAlive == 2 || neighborsAlive == 3){
+                        return true;
+                    } else{
+                        return false;
+                    }
+                } else{
+                    if(neighborsAlive == 3){
+                        return true;
+                    } else{
+                        return false;
+                    }
+                }
+
+            case HIGHLIFE:
+                if(oldState){
+                    if(neighborsAlive == 2 || neighborsAlive == 3){
+                        return true;
+                    } else{
+                        return false;
+                    }
+                } else{
+                    if(neighborsAlive == 3 || neighborsAlive == 6){
+                        return true;
+                    } else{
+                        return false;
+                    }
+                }
+
+
+            case EVEN:
+                if(oldState) {
+                    if(neighborsAlive % 2 == 0)
+                        return false;
+                }
+                else if(neighborsAlive % 2 != 0)
+                    return true;
+                else{
+                    return false;
+                }
+
+
         }
+
+        return false;
     }
 
     public boolean borderWithAliveParticle(){
