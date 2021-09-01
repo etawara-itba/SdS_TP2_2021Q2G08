@@ -4,12 +4,14 @@ import org.json.simple.parser.JSONParser;
 
 import java.io.*;
 import java.nio.file.FileSystems;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
 public class App {
 
 	private static final String OUTPUT_DIR = "output";
+	private static final String LOGGING_DIR = "logging";
 
 	public static void main(String[] args) throws Exception {
 		Object obj = new JSONParser().parse(new FileReader("config.json"));
@@ -24,7 +26,7 @@ public class App {
 		double particlesAlivePercentageRatio = (double) jo.get("particlesAlivePercentageRatio");
 		long maxIterations = (long) jo.get("iterations");
 
-		createDirectory(OUTPUT_DIR);
+		createDirectory(OUTPUT_DIR, true);
 
 		GameOfLife2D game = new GameOfLife2D(gridSize);
 		if(randomParticles){
@@ -64,16 +66,26 @@ public class App {
 			game.nextRound(game);
 		}
 
+		createDirectory(LOGGING_DIR, false);
+		String logFilename = LOGGING_DIR + "/log_" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".log";
+		try{
+			game.writeDistanceFile(logFilename);
+		}catch (IOException e){
+			System.out.println("error writing to " + logFilename);
+		}
+
 		// System.out.println(particleList);
 
 	}
 
-	private static File createDirectory(String directoryName) throws IOException {
+	private static File createDirectory(String directoryName, boolean deleteIfExist) throws IOException {
 		File dir = new File(String.valueOf(FileSystems.getDefault().getPath("./" + directoryName)));
 		if (dir.exists()) {
-			for (File file: dir.listFiles()) {
-				if (!file.isDirectory())
-					file.delete();
+			if(deleteIfExist){
+				for (File file: dir.listFiles()) {
+					if (!file.isDirectory())
+						file.delete();
+				}
 			}
 			return dir;
 		}
