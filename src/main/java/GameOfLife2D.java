@@ -8,6 +8,7 @@ public class GameOfLife2D {
     private boolean[][] grid;
     int size;
     int timestep;
+    List<Double> maxDistanceList;
 
     public GameOfLife2D(int M) {
         this.timestep = 0;
@@ -18,6 +19,7 @@ public class GameOfLife2D {
                 this.grid[i][j] = false;
             }
         }
+        this.maxDistanceList = new ArrayList<>();
     }
 
     public void fillGrid(List<Particle> particles) {
@@ -54,15 +56,19 @@ public class GameOfLife2D {
     public void nextRound(GameOfLife2D game){
         this.timestep++;
         boolean[][] newGrid = new boolean[this.size][this.size];
+        double maxDistance = -1;
         for(int i = 0; i < game.getSize(); i++){
             for(int j = 0; j < game.getSize(); j++){
                 int neighborsAlive = getNeighborsAlive(i,j);
                 boolean oldState = this.grid[i][j];
                 boolean newState = shouldBeAlive(oldState, neighborsAlive);
                 newGrid[i][j] = newState;
+                if(newState)
+                    maxDistance = Math.max(maxDistance, getDistanceToCenter(new Position(i, j, 0)));
             }
         }
         this.grid = newGrid;
+        this.maxDistanceList.add(maxDistance);
     }
 
     public int getNeighborsAlive(int x, int y){
@@ -171,8 +177,8 @@ public class GameOfLife2D {
         writer.write("");
 
         List<Position> alivePositions = new ArrayList<>();
-        for(int j = this.getSize() - 1; j >= 0; j--) {
-            for(int i = 0; i < this.getSize(); i++) {
+        for(int i = 0; i < this.getSize(); i++) {
+            for(int j = 0; j < this.getSize(); j++) {
                 if(this.grid[i][j])
                     alivePositions.add(new Position(i, j, 0));
             }
@@ -209,20 +215,36 @@ public class GameOfLife2D {
         writer.close();
     }
 
+    public void writeDistanceFile(String fileName) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+        writer.write("");
+
+        writer.append("Timestep\tMax Distance\n");
+
+        for (int t = 0; t < maxDistanceList.size(); t++)
+            writer.append(t + "\t" + maxDistanceList.get(t) + "\n");
+
+        writer.close();
+    }
+
     private ColorRGB getColor(Position position){
         Position center  = getCenter();
         float maxDistance = 1F * this.size;
-        float distance = position.distanceTo(center);
+        double distance = position.distanceTo(center);
 
         float r = 0.2F;
-        float g = (0F + distance/maxDistance);
-        float b = (0F + distance/maxDistance);
+        float g = (float) (0F + distance/maxDistance);
+        float b = (float) (0F + distance/maxDistance);
 
         return new ColorRGB(r, g, b);
     }
 
     private Position getCenter(){
         return new Position(this.size/2, this.size/2, 0);
+    }
+
+    private double getDistanceToCenter(Position position){
+        return getCenter().distanceTo(position);
     }
 
 }
