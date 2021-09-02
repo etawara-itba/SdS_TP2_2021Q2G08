@@ -16,6 +16,7 @@ public class GameOfLife3D {
     private final GameModes mode;
     int timestep;
     List<Double> maxDistanceList;
+    List<Double> aliveDensityList;
 
     public GameOfLife3D(int size, GameModes mode) {
         this.timestep = 0;
@@ -23,6 +24,7 @@ public class GameOfLife3D {
         this.mode = mode;
         this.space = new boolean[size][size][size];
         this.maxDistanceList = new ArrayList<>();
+        this.aliveDensityList = new ArrayList<>();
     }
 
     private boolean isAlive(int x, int y, int z) {
@@ -62,6 +64,7 @@ public class GameOfLife3D {
 
         this.space = newSpace;
         this.maxDistanceList.add(maxDistance);
+        this.aliveDensityList.add(((double) aliveParticles()) / (this.size^3));
     }
 
     private int getAliveNeighbors(int x, int y, int z) {
@@ -159,10 +162,10 @@ public class GameOfLife3D {
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
         writer.write("");
 
-        writer.append("Timestep\tMax Distance\n");
+        writer.append("Timestep\tMax Distance\tAlive Particle Density\n");
 
         for (int t = 0; t < maxDistanceList.size(); t++)
-            writer.append(t + "\t" + maxDistanceList.get(t) + "\n");
+            writer.append(t + "\t" + maxDistanceList.get(t) + "\t" + aliveDensityList.get(t) + "\n");
 
         writer.close();
     }

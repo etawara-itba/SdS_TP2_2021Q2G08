@@ -9,6 +9,7 @@ public class GameOfLife2D {
     int size;
     int timestep;
     List<Double> maxDistanceList;
+    List<Double> aliveDensityList;
 
     public GameOfLife2D(int M) {
         this.timestep = 0;
@@ -20,6 +21,7 @@ public class GameOfLife2D {
             }
         }
         this.maxDistanceList = new ArrayList<>();
+        this.aliveDensityList = new ArrayList<>();
     }
 
     public void fillGrid(List<Particle> particles) {
@@ -69,6 +71,7 @@ public class GameOfLife2D {
         }
         this.grid = newGrid;
         this.maxDistanceList.add(maxDistance);
+        this.aliveDensityList.add(((double) aliveParticles()) / (this.size^2));
     }
 
     public int getNeighborsAlive(int x, int y){
@@ -219,10 +222,10 @@ public class GameOfLife2D {
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
         writer.write("");
 
-        writer.append("Timestep\tMax Distance\n");
+        writer.append("Timestep\tMax Distance\tAlive Particle Density\n");
 
         for (int t = 0; t < maxDistanceList.size(); t++)
-            writer.append(t + "\t" + maxDistanceList.get(t) + "\n");
+            writer.append(t + "\t" + maxDistanceList.get(t) + "\t" + aliveDensityList.get(t) + "\n");
 
         writer.close();
     }
