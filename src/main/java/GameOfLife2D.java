@@ -58,7 +58,7 @@ public class GameOfLife2D {
         return this.grid[x][y];
     }
 
-    public void nextRound(GameOfLife2D game){
+    public void nextRound(GameOfLife2D game) throws Exception {
         this.timestep++;
         boolean[][] newGrid = new boolean[this.size][this.size];
         double maxDistance = -1;
@@ -124,7 +124,7 @@ public class GameOfLife2D {
 
     }
 
-    public boolean shouldBeAlive(boolean oldState, int neighborsAlive){
+    public boolean shouldBeAlive(boolean oldState, int neighborsAlive) throws Exception {
         switch (this.mode){
             case CLASSIC:
                 if(oldState){
@@ -168,10 +168,12 @@ public class GameOfLife2D {
                     return false;
                 }
 
+            default:
+                throw new Exception("The game mode " + this.mode +" is not available for 2D Game of Life");
+
 
         }
 
-        return false;
     }
 
     public boolean borderWithAliveParticle(){

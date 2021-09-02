@@ -5,11 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameOfLife3D {
-    public enum GameModes {
-        L2333,
-        L5766,
-        L4555,
-    }
 
     private boolean[][][] space;
     private final int size;
@@ -44,7 +39,7 @@ public class GameOfLife3D {
         }
     }
 
-    public void nextRound() {
+    public void nextRound() throws Exception {
         this.timestep++;
         boolean[][][] newSpace = new boolean[this.size][this.size][this.size];
         double maxDistance = -1;
@@ -87,15 +82,18 @@ public class GameOfLife3D {
         return liveCells;
     }
 
-    private boolean getNewState(boolean cellIsAlive, int aliveNeighbors) {
+    private boolean getNewState(boolean cellIsAlive, int aliveNeighbors) throws Exception {
         switch (this.mode) {
+            case L2333:
+                return cellIsAlive ? (aliveNeighbors == 2 || aliveNeighbors == 3) : (aliveNeighbors == 3);
             case L5766:
                 return cellIsAlive ? (aliveNeighbors >= 5 && aliveNeighbors <= 7) : (aliveNeighbors == 6);
             case L4555:
                 return cellIsAlive ? (aliveNeighbors == 4 || aliveNeighbors == 5) : (aliveNeighbors == 5);
             default:
+                throw new Exception("The game mode " + this.mode +" is not available for 3D Game of Life");
         }
-        return cellIsAlive ? (aliveNeighbors == 2 || aliveNeighbors == 3) : (aliveNeighbors == 3);
+
     }
 
     public int aliveParticles() {
