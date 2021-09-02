@@ -111,6 +111,34 @@ public class GameOfLife3D {
         }
         return  aliveParticles;
     }
+    
+    public boolean borderWithAliveParticle(){
+        // Front and back sides
+        for(int x = 0; x < this.size; x++) {
+            for(int y = 0; y < this.size; y++){
+                if (this.space[x][y][0] || this.space[x][y][this.size - 1])
+                    return true;
+            }
+        }
+
+        // Top and bottom sides
+        for (int x = 0; x < this.size; x++) {
+            for (int z = 0; z < this.size; z++) {
+                if (this.space[x][0][z] || this.space[x][this.size - 1][z])
+                    return true;
+            }
+        }
+
+        // Left and right side
+        for (int y = 0; y < this.size; y++) {
+            for (int z = 0; z < this.size; z++) {
+                if (this.space[0][y][z] || this.space[this.size - 1][y][z])
+                    return true;
+            }
+        }
+
+        return false;
+    }
 
     public void dumpToFile(String fileName) throws IOException {
 
