@@ -111,32 +111,19 @@ public class GameOfLife3D {
         }
         return  aliveParticles;
     }
-    
+
     public boolean borderWithAliveParticle(){
-        // Front and back sides
-        for(int x = 0; x < this.size; x++) {
-            for(int y = 0; y < this.size; y++){
-                if (this.space[x][y][0] || this.space[x][y][this.size - 1])
+        int max = this.size - 1;
+        for(int i = 0; i < this.size; i++) {
+            for(int j = 0; j < this.size; j++){
+                if (this.space[i][j][0] || this.space[i][j][max])
+                    return true;
+                if (this.space[i][0][j] || this.space[i][max][j])
+                    return true;
+                if (this.space[0][i][j] || this.space[max][i][j])
                     return true;
             }
         }
-
-        // Top and bottom sides
-        for (int x = 0; x < this.size; x++) {
-            for (int z = 0; z < this.size; z++) {
-                if (this.space[x][0][z] || this.space[x][this.size - 1][z])
-                    return true;
-            }
-        }
-
-        // Left and right side
-        for (int y = 0; y < this.size; y++) {
-            for (int z = 0; z < this.size; z++) {
-                if (this.space[0][y][z] || this.space[this.size - 1][y][z])
-                    return true;
-            }
-        }
-
         return false;
     }
 
