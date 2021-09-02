@@ -28,11 +28,11 @@ public class GameOfLife3D {
     }
 
     private boolean isAlive(int x, int y, int z) {
-        if (x < 0 || x > this.size)
+        if (x < 0 || x >= this.size)
             return false;
-        if (y < 0 || y > this.size)
+        if (y < 0 || y >= this.size)
             return false;
-        if (z < 0 || z > this.size)
+        if (z < 0 || z >= this.size)
             return false;
         return this.space[x][y][z];
     }
