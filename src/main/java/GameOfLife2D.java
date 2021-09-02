@@ -34,25 +34,13 @@ public class GameOfLife2D {
         }
     }
 
-    // GETTERS
-    public boolean[][] getGrid(){
-        return this.grid;
-    }
+
     public int getSize(){
         return this.size;
     }
 
 
-    //SETTERS
-    public void setAlive(int x, int y){
-        this.grid[x][y] = true;
-    }
-    public void setDead(int x, int y){
-        this.grid[x][y] = false;
-    }
-    public void setState(int x, int y, boolean state){
-        this.grid[x][y] = state;
-    }
+
 
     public boolean isAlive(int x, int y){
         return this.grid[x][y];
@@ -164,9 +152,9 @@ public class GameOfLife2D {
                 }
                 else if(neighborsAlive % 2 != 0)
                     return true;
-                else{
-                    return false;
-                }
+
+                return false;
+
 
             default:
                 throw new Exception("The game mode " + this.mode +" is not available for 2D Game of Life");
