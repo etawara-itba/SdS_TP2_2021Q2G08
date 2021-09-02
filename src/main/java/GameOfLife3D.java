@@ -147,7 +147,7 @@ public class GameOfLife3D {
         writer.append("ITEM: BOX BOUNDS\n");
         writer.append("0\t" + this.size + "\n" );
         writer.append("0\t" + this.size + "\n" );
-        writer.append("0\t0\n" );
+        writer.append("0\t" + this.size + "\n" );
         writer.append("ITEM: ATOMS id type xs ys zs rc gc bc\n");
 
         String id, type, xs, ys, zs, rc, bc, gc;
