@@ -2,7 +2,6 @@ import pathlib
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-
 import pandas as pd
 
 
@@ -22,21 +21,24 @@ def main(argv):
 
 
 def plot_distance(radius):
-    p_min = []
+    p_lower = []
     p_avg = []
-    p_max = []
+    p_upper = []
     keys = radius.keys()
     for k in keys:
-        p_min.append(np.min(radius[k]))
-        p_avg.append(np.average(radius[k]))
-        p_max.append(np.max(radius[k]))
+        avg = np.average(radius[k])
+        std = np.std(radius[k])
+
+        p_lower.append(avg - std)
+        p_avg.append(avg)
+        p_upper.append(avg + std)
 
     plt.plot(keys, p_avg, color='magenta')
-    plt.fill_between(keys, p_min, p_max, color='red', alpha=0.2)
+    plt.fill_between(keys, p_lower, p_upper, color='red', alpha=0.2)
 
-    plt.xlabel('timestep', fontsize=15)
-    plt.ylabel('distance to furthest particle', fontsize=15)
-    plt.title('Distance to furthest particle in function of time')
+    plt.xlabel('timestep', fontsize=14)
+    plt.ylabel('distance to furthest particle', fontsize=14)
+    plt.title('Distance to furthest particle over time', fontsize=18)
 
     plt.xlim(0)
     plt.grid(True)
@@ -44,21 +46,24 @@ def plot_distance(radius):
     plt.show()
 
 def plot_density(density):
-    d_min = []
+    d_lower = []
     d_avg = []
-    d_max = []
+    d_upper = []
     keys = density.keys()
     for k in keys:
-        d_min.append(np.min(density[k]))
-        d_avg.append(np.average(density[k]))
-        d_max.append(np.max(density[k]))
+        avg = np.average(density[k])
+        std = np.std(density[k])
+
+        d_lower.append(avg - std)
+        d_avg.append(avg)
+        d_upper.append(avg + std)
 
     plt.plot(keys, d_avg, color='blue')
-    plt.fill_between(keys, d_min, d_max, color='cyan', alpha=0.2)
+    plt.fill_between(keys, d_lower, d_upper, color='cyan', alpha=0.2)
 
-    plt.xlabel('timestep', fontsize=15)
-    plt.ylabel('density (alive particles / volume)', fontsize=15)
-    plt.title('Alive particles density over time')
+    plt.xlabel('timestep', fontsize=14)
+    plt.ylabel('density (alive particles / volume)', fontsize=14)
+    plt.title('Alive particles density over time', fontsize=18)
     plt.xlim(0)
     plt.grid(True)
 
