@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from scipy import stats
 
 
 def main(argv):
@@ -24,7 +25,7 @@ def plot_distance(radius):
     p_lower = []
     p_avg = []
     p_upper = []
-    keys = radius.keys()
+    keys = list(radius.keys())
     for k in keys:
         avg = np.average(radius[k])
         std = np.std(radius[k])
@@ -36,12 +37,18 @@ def plot_distance(radius):
     plt.plot(keys, p_avg, color='magenta')
     plt.fill_between(keys, p_lower, p_upper, color='red', alpha=0.2)
 
+    slope, intercept, r_value, p_value, std_err = stats.linregress(keys, p_avg)
+    lr_y = list(map(lambda x: x * slope + intercept, keys))
+    plt.plot(keys, lr_y, alpha=0.6, color="black", label="alpha = {:0.4f}".format(slope))
+    plt.plot([], [], alpha=0.0, label="r^2 = {:0.4f}".format(r_value**2))
+
     plt.xlabel('timestep', fontsize=14)
     plt.ylabel('distance to furthest particle', fontsize=14)
     plt.title('Distance to furthest particle over time', fontsize=18)
 
     plt.xlim(0)
     plt.grid(True)
+    plt.legend(loc="upper left")
 
     plt.show()
 
@@ -49,7 +56,7 @@ def plot_density(density):
     d_lower = []
     d_avg = []
     d_upper = []
-    keys = density.keys()
+    keys = list(density.keys())
     for k in keys:
         avg = np.average(density[k])
         std = np.std(density[k])
@@ -61,11 +68,18 @@ def plot_density(density):
     plt.plot(keys, d_avg, color='blue')
     plt.fill_between(keys, d_lower, d_upper, color='cyan', alpha=0.2)
 
+    slope, intercept, r_value, p_value, std_err = stats.linregress(keys, d_avg)
+    lr_y = list(map(lambda x: x * slope + intercept, keys))
+    plt.plot(keys, lr_y, alpha=0.6, color="black", label="alpha = {:0.4f}".format(slope))
+    plt.plot([], [], alpha=0.0, label="r^2 = {:0.4f}".format(r_value**2))
+
     plt.xlabel('timestep', fontsize=14)
     plt.ylabel('density (alive particles / volume)', fontsize=14)
     plt.title('Alive particles density over time', fontsize=18)
+
     plt.xlim(0)
     plt.grid(True)
+    plt.legend(loc="upper right")
 
     plt.show()
 
