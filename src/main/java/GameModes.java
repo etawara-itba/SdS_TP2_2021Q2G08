@@ -1,5 +1,8 @@
 public enum GameModes {
     CLASSIC,
     HIGHLIFE,
-    EVEN
+    EVEN,
+    L2333,
+    L5766,
+    L4555
 }

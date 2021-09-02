@@ -13,7 +13,7 @@ public class ParticlesGenerator {
         this.ratio = ratio;
     }
 
-    public List<Particle> generator(){
+    public List<Particle> generator2D(){
         List<Particle> particleList = new ArrayList<>();
         int center = this.size / 2;
         for(int i = 0; i < this.size; i++){
