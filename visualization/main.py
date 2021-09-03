@@ -34,10 +34,13 @@ def plot_distance(radius):
         p_avg.append(avg)
         p_upper.append(avg + std)
 
-    plt.plot(keys, p_avg, color='magenta')
-    plt.fill_between(keys, p_lower, p_upper, color='red', alpha=0.2)
+    plt.plot(keys, p_avg, color='magenta', marker="o", markersize=3, label="average distance")
+    plt.fill_between(keys, p_lower, p_upper, color='red', alpha=0.2, label="distance within sd")
 
-    slope, intercept, r_value, p_value, std_err = stats.linregress(keys, p_avg)
+    key_index_min = 1
+    key_index_max = int(len(keys) / 3) + 1
+
+    slope, intercept, r_value, p_value, std_err = stats.linregress(keys[key_index_min:key_index_max], p_avg[key_index_min:key_index_max])
     lr_y = list(map(lambda x: x * slope + intercept, keys))
     plt.plot(keys, lr_y, alpha=0.6, color="black", label="alpha = {:0.4f}".format(slope))
     plt.plot([], [], alpha=0.0, label="r^2 = {:0.4f}".format(r_value**2))
@@ -48,7 +51,7 @@ def plot_distance(radius):
 
     plt.xlim(0)
     plt.grid(True)
-    plt.legend(loc="upper left")
+    plt.legend(loc="best")
 
     plt.show()
 
@@ -65,13 +68,8 @@ def plot_density(density):
         d_avg.append(avg)
         d_upper.append(avg + std)
 
-    plt.plot(keys, d_avg, color='blue')
-    plt.fill_between(keys, d_lower, d_upper, color='cyan', alpha=0.2)
-
-    slope, intercept, r_value, p_value, std_err = stats.linregress(keys, d_avg)
-    lr_y = list(map(lambda x: x * slope + intercept, keys))
-    plt.plot(keys, lr_y, alpha=0.6, color="black", label="alpha = {:0.4f}".format(slope))
-    plt.plot([], [], alpha=0.0, label="r^2 = {:0.4f}".format(r_value**2))
+    plt.plot(keys, d_avg, color='blue', marker="o", markersize=3, label="average density")
+    plt.fill_between(keys, d_lower, d_upper, color='cyan', alpha=0.2, label="density within sd")
 
     plt.xlabel('timestep', fontsize=14)
     plt.ylabel('density (alive particles / volume)', fontsize=14)
