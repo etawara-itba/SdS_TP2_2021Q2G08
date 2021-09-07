@@ -1,11 +1,12 @@
 {
 	"gridSize": 1000,
-	"gridDimension": 3,
-	"rule": "L2333",
+	"gridDimension": 2,
+	"rule": "CLASSIC",
 	"randomParticles": true,
 	"initialArea": 100,
 	"particlesAlivePercentageRatio": 0.3,
 	"iterations": 1000,
+	"runs": 10,
 	"particles": [
 		{
 			"x": 5,
