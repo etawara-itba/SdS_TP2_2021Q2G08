@@ -17,8 +17,8 @@ def main(argv):
 
     # Args to local variables
     log_file_path = argv[0]
-    rule = argv[1] if len(argv) > 2 else "CLASSIC"
-    ratio = argv[2] if len(argv) > 3 else "0.3"
+    rule = argv[1] if len(argv) >= 2 else "CLASSIC"
+    ratio = argv[2] if len(argv) >= 3 else "0.3"
 
     log_data, distance_data, density_data = get_log_file(log_file_path)
 
@@ -105,6 +105,7 @@ def plot_historical_alpha(rule, log_dir="../logging"):
     center = alphas[:, 1]
     spread = alphas[:, 2]
 
+    plt.figure(num=rule)
     violin_data = []
     for i in range(len(x)):
         violin_data.append([center[i], center[i] - spread[i], center[i] + spread[i]])
@@ -112,8 +113,6 @@ def plot_historical_alpha(rule, log_dir="../logging"):
     parts = plt.violinplot(violin_data, x, widths=0.05, showmeans=True)
     for pc in parts['bodies']:
         pc.set_alpha(0)
-
-    plt.plot(x, center, marker="o", alpha=0.6, color="green")
 
     plt.xlabel('Initial alive population ratio', fontsize=20)
     plt.ylabel('Alpha', fontsize=20)
@@ -141,10 +140,31 @@ def get_log_file(log_file_dir_path):
             radius[pair[0]] = []
         if pair[0] not in density:
             density[pair[0]] = []
-        radius[pair[0]].append(pair[1])
-        density[pair[0]].append(pair[2])
+        if pair[1] > 0:
+            radius[pair[0]].append(pair[1])
+            density[pair[0]].append(pair[2])
 
-    return log_files, radius, density
+    keys = list(radius.keys())
+    keys_len = len(keys)
+    min_r_index = 1
+    max_r_index = int(keys_len / 3)
+    last_average = np.average(radius[keys[-1]])
+    for i in range(keys_len):
+        if i > max_r_index:
+            avg = np.average(radius[keys[i]])
+            if not (last_average - 1 < avg < last_average +1):
+                max_r_index = i
+
+    new_log_file = []
+    min_key = keys[min_r_index]
+    max_key = keys[max_r_index]
+    for pair in log_files:
+        if min_key <= pair[0] <= max_key:
+            new_log_file.append(pair)
+
+    new_log_file = np.array(new_log_file)
+
+    return new_log_file, radius, density
 
 
 def get_array_from_path(log_file):

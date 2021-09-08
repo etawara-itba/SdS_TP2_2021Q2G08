@@ -23,12 +23,28 @@ public class App {
 		String rule = (String) jo.get("rule");
 		boolean randomParticles = (boolean) jo.get("randomParticles");
 		int initialArea = (int) (long) jo.get("initialArea");
-		double particlesAlivePercentageRatio = (double) jo.get("particlesAlivePercentageRatio");
 		long maxIterations = (long) jo.get("iterations");
 		int runs = (int) (long) jo.get("runs");
 
+		List<Double> particleAlivePercentageRatioList = new ArrayList<>();
+		try{
+			double particlesAlivePercentageRatio = (double) jo.get("particlesAlivePercentageRatio");
+			particleAlivePercentageRatioList.add(particlesAlivePercentageRatio);
+		}catch (Exception e){
+			JSONArray particlesAlivePercentageRatioArray = (JSONArray) jo.get("particlesAlivePercentageRatio");
+			for (int i=0; i<particlesAlivePercentageRatioArray.size(); i++) {
+				particleAlivePercentageRatioList.add((Double) particlesAlivePercentageRatioArray.get(i));
+			}
+		}
+
 
 		// VALIDATORS
+		for (double particlesAlivePercentageRatio: particleAlivePercentageRatioList) {
+			if(particlesAlivePercentageRatio < 0 || particlesAlivePercentageRatio > 1) {
+				System.out.println("Invalid alive particles ratio argument! It must be between 0 and 1");
+				return;
+			}
+		}
 		if(gridSize <= 0){
 			System.out.println("Invalid grid size argument! It must be greater than 0");
 			return;
@@ -38,10 +54,7 @@ public class App {
 		} else if(initialArea <= 0){
 			System.out.println("Invalid initial area argument! It must be greater than 0");
 			return;
-		} else if(particlesAlivePercentageRatio < 0 || particlesAlivePercentageRatio > 1){
-			System.out.println("Invalid alive particles ratio argument! It must be between 0 and 1");
-			return;
-		} else if(maxIterations <= 0){
+		}else if(maxIterations <= 0){
 			System.out.println("Invalid max iterations argument! It must be greater than 0");
 			return;
 		} else if(runs <= 0){
@@ -50,108 +63,112 @@ public class App {
 
 		createDirectory(OUTPUT_DIR, true);
 
-		for (int run = 1; run <= runs; run++){
-			if(gridDimension == 2){
-				GameOfLife2D game = new GameOfLife2D(gridSize, GameModes.valueOf(rule));
-				if(randomParticles){
-					ParticlesGenerator particles2DGenerator = new ParticlesGenerator(gridSize, initialArea, particlesAlivePercentageRatio);
-					List<Particle> particleListGenerated = particles2DGenerator.generator2D();
-					game.fillGrid(particleListGenerated);
-				} else{
-					JSONArray particlesArray = (JSONArray) jo.get("particles");
-					List<Particle> particleList = new ArrayList<>();
-					Iterator<JSONObject> iterator = particlesArray.iterator();
-					while(iterator.hasNext()){
-						JSONObject particleJSON = iterator.next();
-						int x = (int) (long) particleJSON.get("x");
-						int y = (int) (long) particleJSON.get("y");
-						int z = (int) (long) particleJSON.get("z");
-						Boolean isAlive = (boolean) particleJSON.get("isAlive");
-						Particle particle = new Particle(x, y, z, isAlive);
-						particleList.add(particle);
+		for (double particlesAlivePercentageRatio: particleAlivePercentageRatioList) {
+			for (int run = 1; run <= runs; run++){
+				if(gridDimension == 2){
+					GameOfLife2D game = new GameOfLife2D(gridSize, GameModes.valueOf(rule));
+					if(randomParticles){
+						ParticlesGenerator particles2DGenerator = new ParticlesGenerator(gridSize, initialArea, particlesAlivePercentageRatio);
+						List<Particle> particleListGenerated = particles2DGenerator.generator2D();
+						game.fillGrid(particleListGenerated);
+					} else{
+						JSONArray particlesArray = (JSONArray) jo.get("particles");
+						List<Particle> particleList = new ArrayList<>();
+						Iterator<JSONObject> iterator = particlesArray.iterator();
+						while(iterator.hasNext()){
+							JSONObject particleJSON = iterator.next();
+							int x = (int) (long) particleJSON.get("x");
+							int y = (int) (long) particleJSON.get("y");
+							int z = (int) (long) particleJSON.get("z");
+							Boolean isAlive = (boolean) particleJSON.get("isAlive");
+							Particle particle = new Particle(x, y, z, isAlive);
+							particleList.add(particle);
+						}
+						game.fillGrid(particleList);
 					}
-					game.fillGrid(particleList);
-				}
 
-				String baseFilename = OUTPUT_DIR + "/dynamic_";
-				String currentFilename;
-				String fileSuffix = ".dump";
-				for(int iteration = 0; iteration < maxIterations && !game.borderWithAliveParticle() && game.aliveParticles() > 0; iteration++){
-					System.out.println(String.format("Iteration number: %d\trun: %d", iteration, run));
-					// game.printBoard();
+					String baseFilename = OUTPUT_DIR + "/dynamic_";
+					String currentFilename;
+					String fileSuffix = ".dump";
+					for(int iteration = 0; iteration < maxIterations && !game.borderWithAliveParticle() && game.aliveParticles() > 0; iteration++){
+						System.out.println(String.format("Iteration number: %d\trun: %d", iteration, run));
+						// game.printBoard();
 
-					currentFilename = baseFilename + String.format("%05d", iteration) + fileSuffix;
+						currentFilename = baseFilename + String.format("%05d", iteration) + fileSuffix;
+						try{
+							game.dumpToFile(currentFilename);
+						}catch (IOException e){
+							System.out.println("error writing to " + currentFilename);
+						}
+
+						game.nextRound(game);
+					}
+
+					String baseLogDir = String.format("%s_%s_%dp", LOGGING_DIR, rule, (int) (particlesAlivePercentageRatio*100));
+					createDirectory(baseLogDir, false);
+					String logFilename = baseLogDir + "/log_" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".log";
 					try{
-						game.dumpToFile(currentFilename);
+						game.writeDistanceFile(logFilename);
 					}catch (IOException e){
-						System.out.println("error writing to " + currentFilename);
+						System.out.println("error writing to " + logFilename);
 					}
 
-					game.nextRound(game);
-				}
 
-				String baseLogDir = String.format("%s_%s_%dp", LOGGING_DIR, rule, (int) (particlesAlivePercentageRatio*100));
-				createDirectory(baseLogDir, false);
-				String logFilename = baseLogDir + "/log_" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".log";
-				try{
-					game.writeDistanceFile(logFilename);
-				}catch (IOException e){
-					System.out.println("error writing to " + logFilename);
-				}
-
-
-			} else if(gridDimension == 3){
-				GameOfLife3D game = new GameOfLife3D(gridSize, GameModes.valueOf(rule));
-				if(randomParticles){
-					ParticlesGenerator particles3DGenerator = new ParticlesGenerator(gridSize, initialArea, particlesAlivePercentageRatio);
-					List<Particle> particleListGenerated = particles3DGenerator.generator3D();
-					game.fillSpace(particleListGenerated);
-				} else{
-					JSONArray particlesArray = (JSONArray) jo.get("particles");
-					List<Particle> particleList = new ArrayList<>();
-					Iterator<JSONObject> iterator = particlesArray.iterator();
-					while(iterator.hasNext()){
-						JSONObject particleJSON = iterator.next();
-						int x = (int) (long) particleJSON.get("x");
-						int y = (int) (long) particleJSON.get("y");
-						int z = (int) (long) particleJSON.get("z");
-						Boolean isAlive = (boolean) particleJSON.get("isAlive");
-						Particle particle = new Particle(x, y, z, isAlive);
-						particleList.add(particle);
+				} else if(gridDimension == 3){
+					GameOfLife3D game = new GameOfLife3D(gridSize, GameModes.valueOf(rule));
+					if(randomParticles){
+						ParticlesGenerator particles3DGenerator = new ParticlesGenerator(gridSize, initialArea, particlesAlivePercentageRatio);
+						List<Particle> particleListGenerated = particles3DGenerator.generator3D();
+						game.fillSpace(particleListGenerated);
+					} else{
+						JSONArray particlesArray = (JSONArray) jo.get("particles");
+						List<Particle> particleList = new ArrayList<>();
+						Iterator<JSONObject> iterator = particlesArray.iterator();
+						while(iterator.hasNext()){
+							JSONObject particleJSON = iterator.next();
+							int x = (int) (long) particleJSON.get("x");
+							int y = (int) (long) particleJSON.get("y");
+							int z = (int) (long) particleJSON.get("z");
+							Boolean isAlive = (boolean) particleJSON.get("isAlive");
+							Particle particle = new Particle(x, y, z, isAlive);
+							particleList.add(particle);
+						}
+						game.fillSpace(particleList);
 					}
-					game.fillSpace(particleList);
-				}
 
-				String baseFilename = OUTPUT_DIR + "/dynamic_";
-				String currentFilename;
-				String fileSuffix = ".dump";
-				for(int iteration = 0; iteration < maxIterations && !game.borderWithAliveParticle() && game.aliveParticles() > 0; iteration++){
-					System.out.println(String.format("Iteration number: %d\trun: %d", iteration, run));
-					// game.printBoard();
+					String baseFilename = OUTPUT_DIR + "/dynamic_";
+					String currentFilename;
+					String fileSuffix = ".dump";
+					for(int iteration = 0; iteration < maxIterations && !game.borderWithAliveParticle() && game.aliveParticles() > 0; iteration++){
+						System.out.println(String.format("Iteration number: %d\trun: %d", iteration, run));
+						// game.printBoard();
 
-					currentFilename = baseFilename + String.format("%05d", iteration) + fileSuffix;
+						currentFilename = baseFilename + String.format("%05d", iteration) + fileSuffix;
+						try{
+							game.dumpToFile(currentFilename);
+						}catch (IOException e){
+							System.out.println("error writing to " + currentFilename);
+						}
+
+						game.nextRound();
+					}
+
+					String baseLogDir = String.format("%s_%s_%dp", LOGGING_DIR, rule, (int) (particlesAlivePercentageRatio*100));
+					createDirectory(baseLogDir, false);
+					String logFilename = baseLogDir + "/log_" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".log";
 					try{
-						game.dumpToFile(currentFilename);
+						game.writeDistanceFile(logFilename);
 					}catch (IOException e){
-						System.out.println("error writing to " + currentFilename);
+						System.out.println("error writing to " + logFilename);
 					}
 
-					game.nextRound();
+				} else {
+					System.out.println("Wrong gridDimension argument! This value must be 2 or 3.");
+					return;
 				}
-
-				createDirectory(LOGGING_DIR, false);
-				String logFilename = LOGGING_DIR + "/log_" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".log";
-				try{
-					game.writeDistanceFile(logFilename);
-				}catch (IOException e){
-					System.out.println("error writing to " + logFilename);
-				}
-
-			} else {
-				System.out.println("Wrong gridDimension argument! This value must be 2 or 3.");
-				return;
+				System.out.println(String.format("Run %d / %d finished.\n", run, runs));
 			}
-			System.out.println(String.format("Run %d / %d finished.\n", run, runs));
+            System.out.println(String.format("Runs for ratio %f finished.\n", particlesAlivePercentageRatio));
 		}
 	}
 
